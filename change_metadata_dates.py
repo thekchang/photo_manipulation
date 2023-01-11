@@ -1,11 +1,19 @@
 from datetime import datetime, timedelta
 import piexif
 import os
+import multiprocessing as mp
+
+
+from tqdm import tqdm
 import subprocess
 from PIL import Image
 import shutil
 import click
-from tqdm import tqdm
+from functools import partial
+
+
+def change_timestamp_star(args):
+    return change_timestamp(*args)
 
 
 def change_timestamp(new_timestamp, fname, new_fname):
@@ -36,18 +44,37 @@ def change_timestamp(new_timestamp, fname, new_fname):
 )
 def main(src_dir, tgt_dir, new_timestamp_base_str):
 
-    new_path = tgt_dir
     shutil.rmtree(tgt_dir, ignore_errors=True)
-    os.mkdir(new_path)
+    os.mkdir(tgt_dir)
 
-    fnames = sorted(os.listdir(src_dir))
-    base_ts = datetime.strptime(new_timestamp_base_str, "%Y/%m/%d %H:%M")
+    sorted_fnames = sorted(os.listdir(src_dir))
+    src_fnames = [f"{src_dir}/{x}" for x in sorted_fnames]
+    tgt_fnames = [f"{tgt_dir}/{x}" for x in sorted_fnames]
+    new_timestamps = [datetime.strptime(new_timestamp_base_str, "%Y/%m/%d %H:%M") + timedelta(microseconds=i) for i in range(len(sorted_fnames))]
+    args = list(zip(new_timestamps, src_fnames, tgt_fnames))
+    #funcs = [partial(change_timestamp, *arg) for arg in args]
 
-    for i, fname in enumerate(tqdm(fnames)):
-        fpath = f"{src_dir}/{fname}"
-        new_fpath = f"{new_path}/{fname}"
-        new_ts = base_ts + timedelta(microseconds=i)
-        change_timestamp(new_ts, fpath, new_fpath)
+    #base_ts = datetime.strptime(new_timestamp_base_str, "%Y/%m/%d %H:%M")
+
+    num_processes = mp.cpu_count()
+    print(f"num_processes: {num_processes}")
+    with mp.Pool(num_processes) as pool:
+        for _ in tqdm(pool.imap_unordered(change_timestamp_star, args), total=len(args)):
+            pass
+
+    #pool = mp.Pool(num_processes)
+    #with mp.Pool(num_processes) as pool:
+        #pool.starmap(change_timestamp, tqdm(args, total=len(args)))
+        #results = pool.starmap(my_function, tqdm.tqdm(inputs, total=len(param1)))
+    #print(args)
+
+
+    #queue = Queue()
+
+    #processes = [Process(target=change_timestamp, args=(base_ts + timedelta(microseconds=i), f"{src_dir}/{fname}", f"{new_path}/{fname}")) for i,fname in fnames]
+    #for p in processes:
+    #for i, fname in enumerate(tqdm(fnames)):
+        #change_timestamp(base_ts + timedelta(microseconds=i), f"{src_dir}/{fname}", f"{new_path}/{fname}")
 
 
 if __name__ == "__main__":
