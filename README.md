@@ -7,7 +7,7 @@ Example below will do the following:
 *  Write the photo out to `tgt-dir`
 
 Note:
-*  You can view more options by running `chnage_metadata_dates.py` with the `--help` option.
+*  You can view more options by running `change_metadata_dates.py` with the `--help` option.
 
 ```
 python3 change_metadata_dates.py --src-dir src/ --tgt-dir tgt/
