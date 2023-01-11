@@ -50,31 +50,20 @@ def main(src_dir, tgt_dir, new_timestamp_base_str):
     sorted_fnames = sorted(os.listdir(src_dir))
     src_fnames = [f"{src_dir}/{x}" for x in sorted_fnames]
     tgt_fnames = [f"{tgt_dir}/{x}" for x in sorted_fnames]
-    new_timestamps = [datetime.strptime(new_timestamp_base_str, "%Y/%m/%d %H:%M") + timedelta(microseconds=i) for i in range(len(sorted_fnames))]
+    new_timestamps = [
+        datetime.strptime(new_timestamp_base_str, "%Y/%m/%d %H:%M")
+        + timedelta(microseconds=i)
+        for i in range(len(sorted_fnames))
+    ]
     args = list(zip(new_timestamps, src_fnames, tgt_fnames))
-    #funcs = [partial(change_timestamp, *arg) for arg in args]
-
-    #base_ts = datetime.strptime(new_timestamp_base_str, "%Y/%m/%d %H:%M")
 
     num_processes = mp.cpu_count()
     print(f"num_processes: {num_processes}")
     with mp.Pool(num_processes) as pool:
-        for _ in tqdm(pool.imap_unordered(change_timestamp_star, args), total=len(args)):
+        for _ in tqdm(
+            pool.imap_unordered(change_timestamp_star, args), total=len(args)
+        ):
             pass
-
-    #pool = mp.Pool(num_processes)
-    #with mp.Pool(num_processes) as pool:
-        #pool.starmap(change_timestamp, tqdm(args, total=len(args)))
-        #results = pool.starmap(my_function, tqdm.tqdm(inputs, total=len(param1)))
-    #print(args)
-
-
-    #queue = Queue()
-
-    #processes = [Process(target=change_timestamp, args=(base_ts + timedelta(microseconds=i), f"{src_dir}/{fname}", f"{new_path}/{fname}")) for i,fname in fnames]
-    #for p in processes:
-    #for i, fname in enumerate(tqdm(fnames)):
-        #change_timestamp(base_ts + timedelta(microseconds=i), f"{src_dir}/{fname}", f"{new_path}/{fname}")
 
 
 if __name__ == "__main__":
