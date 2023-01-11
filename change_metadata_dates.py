@@ -20,11 +20,14 @@ def change_timestamp(new_timestamp, fname, new_fname):
     img = Image.open(fname)
 
     exif_dict = piexif.load(img.info["exif"])
-    prev_ts = exif_dict["0th"][piexif.ImageIFD.DateTime]
     new_date = new_timestamp.strftime("%Y:%m:%d %H:%M:%S")
     exif_dict["0th"][piexif.ImageIFD.DateTime] = new_date
+    exif_dict["1st"][piexif.ImageIFD.Make] = u"Canon EOS R6 or EOS 5D Mark III"
     exif_dict["Exif"][piexif.ExifIFD.DateTimeOriginal] = new_date
     exif_dict["Exif"][piexif.ExifIFD.DateTimeDigitized] = new_date
+    exif_dict["Exif"][36880] = b'-05:00'
+    exif_dict["Exif"][36881] = b'-05:00'
+    exif_dict["Exif"][36882] = b'-05:00'
     exif_bytes = piexif.dump(exif_dict)
     img.save(new_fname, "jpeg", exif=exif_bytes, quality="keep", optimize=True)
 
@@ -48,6 +51,7 @@ def main(src_dir, tgt_dir, new_timestamp_base_str):
     os.mkdir(tgt_dir)
 
     sorted_fnames = sorted(os.listdir(src_dir))
+    #sorted_fnames = ["KS_wedding_0599.jpg", "KS_wedding_1240.jpg"]
     src_fnames = [f"{src_dir}/{x}" for x in sorted_fnames]
     tgt_fnames = [f"{tgt_dir}/{x}" for x in sorted_fnames]
     new_timestamps = [
