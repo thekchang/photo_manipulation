@@ -46,7 +46,7 @@ def main(src_dir, tgt_dir, new_timestamp_base_str):
     for i, fname in enumerate(tqdm(fnames)):
         fpath = f"{src_dir}/{fname}"
         new_fpath = f"{new_path}/{fname}"
-        new_ts = base_ts + timedelta(minutes=i)
+        new_ts = base_ts + timedelta(microseconds=i)
         change_timestamp(new_ts, fpath, new_fpath)
 
 
