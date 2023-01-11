@@ -52,7 +52,7 @@ def main(src_dir, tgt_dir, new_timestamp_base_str):
     tgt_fnames = [f"{tgt_dir}/{x}" for x in sorted_fnames]
     new_timestamps = [
         datetime.strptime(new_timestamp_base_str, "%Y/%m/%d %H:%M")
-        + timedelta(microseconds=i)
+        + timedelta(seconds=i)
         for i in range(len(sorted_fnames))
     ]
     args = list(zip(new_timestamps, src_fnames, tgt_fnames))
